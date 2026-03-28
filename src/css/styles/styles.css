@@ -1,0 +1,114 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: sans-serif;
+    --gris: #4b4b4b;
+    --white: #f5f0f0;
+    --lightBlue: #00d4ff;
+    --blue: #00d4ffaa;
+    --darkBlue: #090979;
+    --darkPurple: #020024;
+    --red: #d60e0e;
+    --green: #00ff37;
+
+}
+
+.header{
+    background-color: var(--lightBlue);
+    border-radius: 22px;
+    margin: 30px;
+    position: sticky;
+    top: 30px;
+    z-index: 10;
+}
+
+.header__navbar {
+    height: 10dvh;
+    display: flex;
+    justify-content: space-between;
+    padding: 20px 3%;
+}
+
+.header__navbar-logo img{
+    height: 80px;
+}
+
+.header__navbar-btns-container{
+    display: flex;
+    gap: 50px;
+}
+
+.header__navbar-btns-container div {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.header__navbar-btns-container input{
+    width: 600px;
+    height: 100%;
+    padding: 0 15px;
+    font-size: clamp(1rem, 2.2vw, 2rem);
+
+}
+
+.header__navbar-btns-container button {
+    display: flex;
+    align-items: center;
+    background: none;
+    border: none;
+    padding: 20px;
+    border-radius: 22px;
+}
+
+.header__navbar-btns-container button:hover {
+    box-shadow: 0 2px 0px 0px var(--white);
+    animation: zoom .5s both ;
+
+}
+
+.header__navbar-btns-container button:active {
+    animation: zoomNegativo .1s both;
+}
+
+.header__navbar-btns-container span {
+    font-size: clamp(1rem, 2.2vw, 4rem);
+    color: var(--white);
+}
+
+.header__navbar-btns-container button:hover span {
+    animation: colorSpan .5s both;
+}
+
+@keyframes zoom {
+    to {
+        transform: scale(1.1);
+        background-color: var(--white);
+        color: var(--darkPurple);
+    }
+}
+
+@keyframes zoomNegativo {
+    from {
+        transform: scale(1.1);
+        background-color: var(--white);
+        color: var(--darkPurple);
+    }
+
+    to {
+        transform: scale(1);
+        background-color: var(--white);
+        color: var(--darkPurple);
+        opacity: .7;
+    }
+}
+
+@keyframes colorSpan {
+    to {
+        color: var(--darkPurple);
+    }
+}
