@@ -1,27 +1,38 @@
 
 
-import { logViews } from "./views/login.js";
-import { isAuthenticated } from "./utils/auth.js";
-import { dashboardViews } from "./views/dashboard.js";
+import { logingView } from "./views/login.js";
+import { signupView } from "./views/signup.js";
+import { dashboardView } from "./views/dashboard.js";
+import { isAuthenticated } from "./logic/profileLogic.js";
 
 export const app = document.querySelector("#app");
 
-export const navigate = (viewName) => {
-  const view = views[viewName]
-  if(!view) return
-  
-  app.innerHTML = view.render
-  view.events()
+const routes = {
+  login: logingView,
+  signup: signupView,
+  dashboard: dashboardView,
+};
+let currentView = null;
 
+export const navigate = (routeName) => {
+  const view = routes[routeName]();
+  if(!view) return;
+
+  if(currentView && currentView.cleanup) {
+    currentView.cleanup();
+  }
+  
+  currentView = view;
+  app.innerHTML = view.render;
+  view.events();
 }
 
-const views = Object.assign(logViews, dashboardViews) 
 
 if(isAuthenticated()) {
-  navigate("dashboard")
+  navigate("dashboard");
   
 } else {
-  navigate("login")
+  navigate("login");
 }
 
 

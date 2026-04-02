@@ -1,98 +1,63 @@
-import { getUserId, logout, getToken } from "../utils/auth.js"
-import { getProfiles } from "../services/api.js"
+
+
+import { dashboardTemplate, cardTemplate } from "../templates/profileTemplates.js"
+import { getUserId } from "../utils/storage.js"
+import { getProfiles } from "../logic/profileLogic.js"
+import { logout } from "../logic/session.js"
 import { navigate } from "../main.js"
 
-export const dashboardViews = {
-    dashboard: {
-        render: `
-        <header class="header">
-            <nav class="header__navbar">
-                <div  class="header__navbar-logo">
-                    <img src="src/media/jagar_logo-small.png" alt="JAGAR Logo">  
-                </div>
-                <div class="header__navbar-btns-container">
-                    <div>
-                        <span class="material-symbols-outlined">location_away</span>
-                        <input type="text" placeholder="Search" name="" id="search">
-                    </div>
-                    <button>
-                        <span class="material-symbols-outlined">mode_night</span>
-                    </button>
-                    <button id="logout">
-                        <span class="material-symbols-outlined">logout</span>
-                    </button>
-                </div>              
-            </nav>
-        </header>
-        <section class="wrapper">
-            <nav class="wrapper__navbar">
-                <div class="wrapper__navbar-btn-container">
-                    <button>
-                    <span class="material-symbols-outlined">home</span>Home
-                </button>
-                <button>
-                    <span class="material-symbols-outlined">logout</span>
-                </button>
-                </div>
-                    <button>
-                    <span class="material-symbols-outlined">account_circle</span>Perfil
-                </button>
-            </nav>
-            <main class="wrapper__main" id="main"></main>
-        </section>`,
+let timerId = null;
+
+const renderCard = (profiles, container) => {
+    profiles.forEach((profile) => {
+        const profileCard = cardTemplate(
+            profile.full_name,
+            profile.job_title || "Sin oficio",
+            profile.email
+        )
+
+        const position = profile.user_id === getUserId() ? "afterbegin" : "beforeend";
+        container.insertAdjacentHTML(position, profileCard);
+    })
+}
+
+export function dashboardView() {
+    return {
+        render: dashboardTemplate(),
         
         events: async () => {
+            const container = document.querySelector("#main");
             // Graficar las cards de los perfiles
-            await renderCard(getProfiles(getToken()))
+            const profiles = await getProfiles()
+            renderCard(profiles, container);
             
             //Cerrar sesion
-            const btnLogout = document.querySelector("#logout")
+            const btnLogout = document.querySelector("#logout");
             
             btnLogout.addEventListener("click", () => {
-                logout()
-                navigate("login")
+                logout();
+                navigate("login");
             })
             
             // Buscador
-            const search = document.querySelector("#search")
-            let timerId = ""
+            const search = document.querySelector("#search");
             
             search.addEventListener("input", (e) => {
-                const container = document.querySelector("#main")
-                
-                clearTimeout(timerId)
+                clearTimeout(timerId);
                 
                 timerId = setTimeout( async () => {
-                    container.innerHTML = ""
-                    await renderCard(getProfiles(getToken(), e.target.value))
+                    const profiles = await getProfiles(e.target.value)
+                    if(!document.querySelector("#main")) return;     // Verificación de seguridad
+                    container.innerHTML = "";
+                    renderCard(profiles, container);
                     
                 }, 1000);
             })
+        },
+
+        cleanup: () => {
+            clearTimeout(timerId);
+            timerId = null;
         }
     }
-}
-
-async function renderCard(promiseProfiles) {
-    const container = document.querySelector("#main")
-    const profilesArray = await promiseProfiles
-    
-    profilesArray.map((profile) => {
-        if(!profile.job_title) profile.job_title = ""
-        const profileCard = `
-        <div class="wrapper__main-card">
-            <h3>Nombre:</h3>
-            <p>${profile.full_name}</p>
-            <h3>Oficio:</h3>
-            <p>${profile.job_title} </p>
-            <h3>E-mail:</h3>
-            <p>${profile.email} </p>
-        </div>`
-
-        if(profile.user_id === getUserId()) {
-            container.insertAdjacentHTML("afterbegin", profileCard)
-
-        } else {
-            container.insertAdjacentHTML("beforeend", profileCard)
-        }
-    })
 }
